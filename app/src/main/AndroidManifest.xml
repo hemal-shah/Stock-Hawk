@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sam_chordas.android.stockhawk" >
+    package="com.sam_chordas.android.stockhawk">
 
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -11,19 +11,18 @@
         android:name="com.google.android.gcm.demo.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
 
-    <uses-permission
-        android:name="com.google.android.gcm.demo.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.google.android.gcm.demo.permission.C2D_MESSAGE" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:supportsRtl="true"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
 
         <activity
             android:name="com.sam_chordas.android.stockhawk.ui.MyStocksActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,24 +31,32 @@
         </activity>
 
 
-        <activity android:name=".ui.StockDetails"
-            android:label="@string/app_name"
-            >
+        <activity
+            android:name=".ui.StockDetails"
+            android:label="@string/app_name">
 
         </activity>
 
-        <service android:name="com.sam_chordas.android.stockhawk.service.StockTaskService"
-            android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
-            android:exported="true">
+        <service
+            android:name="com.sam_chordas.android.stockhawk.service.StockTaskService"
+            android:exported="true"
+            android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE">
             <intent-filter>
-                <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
+                <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY" />
             </intent-filter>
         </service>
         <service android:name="com.sam_chordas.android.stockhawk.service.StockIntentService" />
+
+        <receiver android:name=".service.NoStockFoundBroadcast">
+            <intent-filter>
+                <action android:name="com.sam_chordas.android.stockhawk.ui.MyStocksActivity.STOCK_NOT_FOUND"></action>
+            </intent-filter>
+        </receiver>
+
         <provider
-            android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
             android:name="com.sam_chordas.android.stockhawk.data.generated.QuoteProvider"
-            android:exported="false"/>
+            android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
+            android:exported="false" />
     </application>
 
 </manifest>

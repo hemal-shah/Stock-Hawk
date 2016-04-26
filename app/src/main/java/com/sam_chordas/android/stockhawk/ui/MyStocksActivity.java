@@ -46,7 +46,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final String TAG = MyStocksActivity.class.getSimpleName();
 
@@ -58,7 +58,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     private Context mContext;
     private Cursor mCursor;
     boolean isConnected;
-
     @Bind(R.id.cdl_activity_my_stocks)
     CoordinatorLayout cdl;
     @Bind(R.id.rv_activity_my_stocks)
@@ -79,13 +78,11 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         setContentView(R.layout.activity_my_stocks);
         ButterKnife.bind(this);
 
-
         setSupportActionBar(toolbar);
         isConnected = Utils.isNetworkAvailable(this);
 
         // The intent service is for executing immediate pulls from the Yahoo API
         // GCMTaskService can only schedule tasks, they cannot execute immediately
-        //TODO understand this.
         mServiceIntent = new Intent(this, StockIntentService.class);
         if (savedInstanceState == null) {
             // Run the initialize task service so that some stocks appear upon an empty database
@@ -142,15 +139,17 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         }
     }
 
+    private void noStockFoundSnack() {
+        Snackbar.make(cdl, "Stock Not Found!", Snackbar.LENGTH_SHORT).show();
+    }
+
 
     /**
      * Method to show error message when the data is not available.
      */
-    public void emptyViewBehavior(){
+    public void emptyViewBehavior() {
 
-        //TODO Add more specific reason as to why data not available.
-
-        if(mCursorAdapter.getItemCount() <= 0){
+        if (mCursorAdapter.getItemCount() <= 0) {
             //The data is not available
 
 
@@ -159,34 +158,29 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
             String message = getString(R.string.data_not_available);
 
-            switch (stockStatus){
+            switch (stockStatus) {
                 case StockTaskService.STATUS_OK:
-                    Log.i(TAG, "emptyViewBehavior: status ok ");
-                    message += "You need to add new stocks by clicking add button!";
+                    message += getString(R.string.string_status_ok);
                     break;
 
                 case StockTaskService.STATUS_NO_NETWORK:
-                    Log.i(TAG, "emptyViewBehavior: status no network");
-                    message += "You need to connect to internet to retreive stock data!";
+                    message += getString(R.string.string_status_no_network);
                     break;
 
                 case StockTaskService.STATUS_ERROR_JSON:
-                    message += "App Internal Error occurred! Sorry!";
+                    message += getString(R.string.string_error_json);
                     break;
 
                 case StockTaskService.STATUS_SERVER_DOWN:
-                    Log.i(TAG, "emptyViewBehavior: status server down");
-                    message += "Yahoo! Server is not responding!";
+                    message += getString(R.string.string_server_down);
                     break;
 
                 case StockTaskService.STATUS_SERVER_ERROR:
-                    Log.i(TAG, "emptyViewBehavior: status server error");
-                    message += "Parsing error! Sorry!";
+                    message += getString(R.string.string_error_server);
                     break;
 
                 case StockTaskService.STATUS_UNKNOWN:
-                    Log.i(TAG, "emptyViewBehavior: unknown behavior");
-                    message += "We can\'t identify the problem, try again later?";
+                    message += getString(R.string.string_status_unknown);
                     break;
                 default:
                     break;
@@ -215,7 +209,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
     public void noNetworkSnack() {
         StockTaskService.setStockStatus(mContext, StockTaskService.STATUS_NO_NETWORK);
-        Snackbar.make(cdl, R.string.no_network, Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(cdl, R.string.network_snack, Snackbar.LENGTH_SHORT).show();
     }
 
     public void restoreActionBar() {
@@ -240,8 +234,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.action_settings:
-                return true;
             case R.id.action_change_units:
                 Utils.showPercent = !Utils.showPercent;
                 this.getContentResolver().notifyChange(QuoteProvider.Quotes.CONTENT_URI, null);
@@ -292,7 +284,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                             Cursor c = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
                                     new String[]{QuoteColumns.SYMBOL}, QuoteColumns.SYMBOL + "= ?",
                                     new String[]{input.toString()}, null);
-                            if (c.getCount() != 0) {
+                            if ( c != null &&  c.getCount() != 0) {
                                 Snackbar.make(cdl, R.string.already_saved, Snackbar.LENGTH_SHORT).show();
                                 return;
                             } else {
@@ -308,4 +300,5 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
             noNetworkSnack();
         }
     }
+
 }

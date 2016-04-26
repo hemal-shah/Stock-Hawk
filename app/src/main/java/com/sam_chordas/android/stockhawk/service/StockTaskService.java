@@ -3,6 +3,7 @@ package com.sam_chordas.android.stockhawk.service;
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -19,6 +20,7 @@ import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 import com.sam_chordas.android.stockhawk.rest.Utils;
+import com.sam_chordas.android.stockhawk.ui.MyStocksActivity;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -44,9 +46,8 @@ public class StockTaskService extends GcmTaskService {
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({STATUS_OK, STATUS_SERVER_ERROR, STATUS_NO_NETWORK, STATUS_ERROR_JSON,
             STATUS_UNKNOWN, STATUS_SERVER_DOWN})
-    public @interface StockStatuses{}
-
-
+    public @interface StockStatuses {
+    }
     public static final int STATUS_OK = 0;
     public static final int STATUS_ERROR_JSON = 1;
     public static final int STATUS_SERVER_ERROR = 2;
@@ -55,14 +56,13 @@ public class StockTaskService extends GcmTaskService {
     public static final int STATUS_UNKNOWN = 5;
 
 
-
-
     private OkHttpClient client = new OkHttpClient();
     private Context mContext;
     private StringBuilder mStoredSymbols = new StringBuilder();
     private boolean isUpdate;
 
     public StockTaskService() {
+
     }
 
     public StockTaskService(Context context) {
@@ -84,11 +84,12 @@ public class StockTaskService extends GcmTaskService {
         if (mContext == null) {
             mContext = this;
         }
+
         StringBuilder urlStringBuilder = new StringBuilder();
 
         try {
             // Base URL for the Yahoo query
-            urlStringBuilder.append("https://queryl.yahooapis.com/v1/public/yql?q=");
+            urlStringBuilder.append("https://query.yahooapis.com/v1/public/yql?q=");
             urlStringBuilder.append(URLEncoder.encode("select * from yahoo.finance.quotes where symbol "
                     + "in (", "UTF-8"));
         } catch (UnsupportedEncodingException e) {
@@ -159,11 +160,16 @@ public class StockTaskService extends GcmTaskService {
                     }
                     ArrayList<ContentProviderOperation> batchOperations = Utils.quoteJsonToContentVals(getResponse);
 
-                    if(batchOperations != null && batchOperations.size() != 0){
+                    if (batchOperations != null && batchOperations.size() != 0) {
                         mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,
                                 batchOperations);
                     } else {
                         //The stock doesn't exist. TODO notify user about the same.
+
+                        Intent intent = new Intent();
+                        intent.setAction("com.sam_chordas.android.stockhawk.ui.MyStocksActivity.STOCK_NOT_FOUND");
+                        mContext.sendBroadcast(intent);
+
                     }
 
                 } catch (RemoteException | OperationApplicationException e) {
@@ -183,7 +189,7 @@ public class StockTaskService extends GcmTaskService {
     }
 
 
-    static public void setStockStatus(Context context, @StockStatuses int stockStatus){
+    static public void setStockStatus(Context context, @StockStatuses int stockStatus) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sp.edit();
         editor.putInt(context.getString(R.string.stockStatus), stockStatus);

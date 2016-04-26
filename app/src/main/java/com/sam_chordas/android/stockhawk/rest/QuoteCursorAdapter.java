@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
+import com.sam_chordas.android.stockhawk.service.StockTaskService;
 import com.sam_chordas.android.stockhawk.touch_helper.ItemTouchHelperAdapter;
 import com.sam_chordas.android.stockhawk.touch_helper.ItemTouchHelperViewHolder;
 
@@ -26,6 +28,7 @@ import com.sam_chordas.android.stockhawk.touch_helper.ItemTouchHelperViewHolder;
 public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAdapter.ViewHolder>
         implements ItemTouchHelperAdapter {
 
+    private static final String TAG = QuoteCursorAdapter.class.getSimpleName();
     private static Context mContext;
     private static Typeface robotoLight;
     private boolean isPercent;
@@ -80,6 +83,11 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
         String symbol = c.getString(c.getColumnIndex(QuoteColumns.SYMBOL));
         mContext.getContentResolver().delete(QuoteProvider.Quotes.withSymbol(symbol), null, null);
         notifyItemRemoved(position);
+
+        if(c.getCount() == 1 ){
+            StockTaskService.setStockStatus(mContext, StockTaskService.STATUS_OK);
+        }
+
     }
 
     @Override
