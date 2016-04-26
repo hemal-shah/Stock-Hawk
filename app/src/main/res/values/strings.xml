@@ -10,4 +10,8 @@
   <string name="input_hint">FB</string>
   <string name="input_prefill"></string>
   <string name="network_toast">Uh-oh! This app requires an internet connection</string>
+  <string name="no_network">Network not Available!</string>
+  <string name="already_saved">This stock is already saved!</string>
+  <string name="data_not_available">Stocks data not available, possible reason is as follow:\n</string>
+  <string name="stockStatus">StockStatus</string>
 </resources>
