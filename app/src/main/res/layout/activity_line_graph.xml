@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <org.hogel.android.linechartview.LineChartView
-        android:id="@+id/linechart"
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/lineChart_activity_line_graph"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
 
+    </com.github.mikephil.charting.charts.LineChart>
 
 </FrameLayout>
