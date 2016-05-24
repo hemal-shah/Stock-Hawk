@@ -11,7 +11,6 @@ import android.database.DatabaseUtils;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
-import android.util.Log;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
@@ -36,7 +35,6 @@ import java.util.ArrayList;
  * and is used for the initialization and adding task as well.
  */
 public class StockTaskService extends GcmTaskService {
-    private String LOG_TAG = StockTaskService.class.getSimpleName();
 
 
     @Retention(RetentionPolicy.SOURCE)
@@ -143,7 +141,6 @@ public class StockTaskService extends GcmTaskService {
 
         if (urlStringBuilder != null) {
             urlString = urlStringBuilder.toString();
-            Log.i(LOG_TAG, "onRunTask: the url formed is : " + urlString);
             try {
                 getResponse = fetchData(urlString);
                 result = GcmNetworkManager.RESULT_SUCCESS;
@@ -170,7 +167,6 @@ public class StockTaskService extends GcmTaskService {
                     }
 
                 } catch (RemoteException | OperationApplicationException e) {
-                    Log.e(LOG_TAG, "Error applying batch insert", e);
                     setStockStatus(mContext, STATUS_ERROR_JSON);
                 } catch (JSONException e) {
                     e.printStackTrace();

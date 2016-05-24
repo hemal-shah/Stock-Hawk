@@ -4,14 +4,9 @@ import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
-
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
-import com.sam_chordas.android.stockhawk.service.StockTaskService;
-
 import java.util.ArrayList;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,8 +15,6 @@ import org.json.JSONObject;
  * Created by sam_chordas on 10/8/15.
  */
 public class Utils {
-
-    private static String LOG_TAG = Utils.class.getSimpleName();
 
     public static boolean showPercent = true;
 
@@ -113,6 +106,21 @@ public class Utils {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo availableNetwork = cm.getActiveNetworkInfo();
         return availableNetwork != null && availableNetwork.isConnectedOrConnecting();
+    }
+
+
+
+    public static String convertDate(String inputDate){
+
+        if(inputDate.length() != 8){
+            return "Error in converting";
+        }
+
+        String outputDate = "";
+        outputDate += inputDate.substring(6);
+        outputDate += "/" + inputDate.substring(4,6);
+        outputDate += "/" + inputDate.substring(2,4);
+        return outputDate;
     }
 
 }

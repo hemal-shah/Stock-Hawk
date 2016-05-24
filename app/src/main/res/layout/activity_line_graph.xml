@@ -1,30 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<LinearLayout
-    android:id="@+id/ll_activity_line_graph"
-    android:orientation="vertical"
-    android:layout_height="fill_parent"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:layout_height="fill_parent">
 
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar_activity_line_graph"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"/>
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/ll_activity_line_graph"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
 
-    <FrameLayout
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/lineChart_activity_line_graph"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar_activity_line_graph"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize" />
+
+        <FrameLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        </com.github.mikephil.charting.charts.LineChart>
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/lineChart_activity_line_graph"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    </FrameLayout>
-</LinearLayout>
+            </com.github.mikephil.charting.charts.LineChart>
+
+        </FrameLayout>
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

@@ -18,6 +18,7 @@ import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 import com.sam_chordas.android.stockhawk.service.StockTaskService;
 import com.sam_chordas.android.stockhawk.touch_helper.ItemTouchHelperAdapter;
 import com.sam_chordas.android.stockhawk.touch_helper.ItemTouchHelperViewHolder;
+import com.squareup.okhttp.internal.Util;
 
 /**
  * Created by sam_chordas on 10/6/15.
@@ -85,7 +86,12 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
         notifyItemRemoved(position);
 
         if(c.getCount() == 1 ){
-            StockTaskService.setStockStatus(mContext, StockTaskService.STATUS_OK);
+
+            if(Utils.isNetworkAvailable(mContext)){
+                StockTaskService.setStockStatus(mContext, StockTaskService.STATUS_NO_NETWORK);
+            } else {
+                StockTaskService.setStockStatus(mContext, StockTaskService.STATUS_OK);
+            }
         }
 
     }

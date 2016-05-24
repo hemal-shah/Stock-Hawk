@@ -1,12 +1,15 @@
 package com.sam_chordas.android.stockhawk.ui;
 
 import android.app.LoaderManager;
+import android.content.AsyncQueryHandler;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -19,14 +22,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.InputType;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
@@ -40,15 +39,15 @@ import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
 import com.sam_chordas.android.stockhawk.touch_helper.SimpleItemTouchHelperCallback;
-import com.squareup.okhttp.internal.Util;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = MyStocksActivity.class.getSimpleName();
+
+    private static final int SYMBOL_SEARCH_QUERY_TAG = 1001;
 
     private CharSequence mTitle;
     private Intent mServiceIntent;
@@ -68,6 +67,8 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     Toolbar toolbar;
     @Bind(R.id.emptyView_acitivity_my_stocks)
     TextView emptyText;
+
+    int symbolColumnIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,10 +107,14 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                 new RecyclerViewItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View v, int position) {
-                        //TODO : do something on item click
-                        startActivity(new Intent(mContext, StockDetails.class));
+                        if (mCursor.moveToPosition(position)) {
+                            Intent intent = new Intent(mContext, StockDetails.class);
+                            intent.putExtra("symbol_name", mCursor.getString(symbolColumnIndex));
+                            startActivity(intent);
+                        }
                     }
                 }));
+
         recyclerView.setAdapter(mCursorAdapter);
         emptyViewBehavior();
 
@@ -137,10 +142,8 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
             // are updated.
             GcmNetworkManager.getInstance(this).schedule(periodicTask);
         }
-    }
 
-    private void noStockFoundSnack() {
-        Snackbar.make(cdl, "Stock Not Found!", Snackbar.LENGTH_SHORT).show();
+
     }
 
 
@@ -196,6 +199,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
             //the data is available
             recyclerView.setVisibility(View.VISIBLE);
             emptyText.setVisibility(View.INVISIBLE);
+            symbolColumnIndex = mCursor.getColumnIndex(QuoteColumns.SYMBOL);
         }
     }
 
@@ -272,6 +276,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
     @OnClick(R.id.fab_activity_my_stocks)
     public void fabClicked() {
+
         if (isConnected) {
             new MaterialDialog.Builder(mContext).title(R.string.symbol_search)
                     .content(R.string.content_test)
@@ -279,25 +284,69 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                     .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
                         @Override
                         public void onInput(MaterialDialog dialog, CharSequence input) {
-                            // On FAB click, receive user input. Make sure the stock doesn't already exist
-                            // in the DB and proceed accordingly
-                            Cursor c = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
-                                    new String[]{QuoteColumns.SYMBOL}, QuoteColumns.SYMBOL + "= ?",
-                                    new String[]{input.toString()}, null);
-                            if ( c != null &&  c.getCount() != 0) {
-                                Snackbar.make(cdl, R.string.already_saved, Snackbar.LENGTH_SHORT).show();
-                                return;
-                            } else {
-                                // Add the stock to DB
-                                mServiceIntent.putExtra("tag", "add");
-                                mServiceIntent.putExtra("symbol", input.toString());
-                                startService(mServiceIntent);
-                            }
+                            String symbol = input.toString().toUpperCase();
+                            SymbolQuery symbolQuery = new SymbolQuery(getContentResolver(), symbol);
+                            symbolQuery.startQuery(SYMBOL_SEARCH_QUERY_TAG,
+                                    null,
+                                    QuoteProvider.Quotes.CONTENT_URI,
+                                    new String[]{QuoteColumns.SYMBOL},
+                                    QuoteColumns.SYMBOL + "=?",
+                                    new String[]{symbol},
+                                    null);
                         }
                     })
+                    .titleColor(Color.BLACK)
+                    .contentColor(Color.BLACK)
                     .show();
         } else {
             noNetworkSnack();
+        }
+    }
+
+    /**
+     * Class to check database for existing symbol in an
+     * asynchronous manner so that the UI thread is not affected.
+     */
+    public class SymbolQuery extends AsyncQueryHandler {
+
+        String symbol;
+
+        public SymbolQuery(ContentResolver cr, String symbol) {
+            /**
+             * We are taking the symbol as a parameter
+             * so that we can later call the StockIntentService with bundle arguments.
+             */
+            super(cr);
+            this.symbol = symbol;
+        }
+
+        @Override
+        protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+
+            /**
+             * This method will be called when completed the execution of
+             * the query for symbol's in database.
+             * We first check if the token is matching with the query that we fired
+             * then on, check the conditional logic for the cursor.
+             */
+
+            if (token == SYMBOL_SEARCH_QUERY_TAG) {
+                if (cursor != null && cursor.getCount() != 0) {
+                    /**
+                     * Query is found so no need to add it.
+                     * Notify the user about the same.
+                     */
+                    Snackbar.make(cdl, R.string.already_saved, Snackbar.LENGTH_SHORT).show();
+                } else {
+                    /**
+                     * The symbol is not available in the database
+                     * so, now we can query Yahoo api services to fetch the symbol and it's equivalent results.
+                     */
+                    mServiceIntent.putExtra("tag", "add");
+                    mServiceIntent.putExtra("symbol", this.symbol);
+                    startService(mServiceIntent);
+                }
+            }
         }
     }
 

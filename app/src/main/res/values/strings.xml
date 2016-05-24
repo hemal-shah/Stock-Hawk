@@ -4,7 +4,7 @@
     <string name="action_change_units" translatable="true">Change Units</string>
     <string name="symbol_search" translatable="true">Symbol Search</string>
     <string name="content_test" translatable="true">Search for a Stock Symbol</string>
-    <string name="input_hint" translatable="false">FB</string>
+    <string name="input_hint" translatable="false">FB or TCS or BSE</string>
 
     <string name="network_snack" translatable="true">Uh-oh! This app requires an internet connection</string>
     <string name="already_saved" translatable="true">This stock is already saved!</string>
@@ -13,7 +13,7 @@
     <string name="stockStatus" translatable="false">StockStatus</string>
     <string name="data_not_available" translatable="true">Stocks data not available, possible solution:\n</string>
     <string name="string_status_ok" translatable="true">You need to add new stocks by clicking add button!</string>
-    <string name="string_status_no_network" translatable="true">You need to connect to internet to retreive stock data!</string>
+    <string name="string_status_no_network" translatable="true">You need to connect to internet to retrieve stock data!</string>
     <string name="string_error_json" translatable="true">App Internal Error occurred! Sorry!</string>
     <string name="string_server_down" translatable="true">Yahoo! Server is not responding!</string>
     <string name="string_error_server" translatable="true">Parsing error! Sorry!</string>
@@ -21,4 +21,8 @@
     <string name="input_prefill" />
     <string name="no_stock_bool">showNoStockFound</string>
     <string name="not_found">Stock symbol invalid!</string>
+    <string name="cant_fetch">Sorry! Couldn\'t fetch data!\n</string>
+    <string name="historicalDataStatus">historical_data_status</string>
+    <string name="no_data_show">Can\'t show you data over time!</string>
+    <string name="retry">RETRY</string>
 </resources>

@@ -5,31 +5,22 @@ import android.os.Parcelable;
 
 /**
  * Created by hemal on 22/5/16.
+ * Now we don't want the entire data returned from the api.
+ * We need to only use the date and close factors.
  */
 public class SymbolParcelable implements Parcelable{
 
-    public String company_name, date;
-    public double close, high, low, open;
-    public int volume;
-
-    public SymbolParcelable(String company_name, String date, double close, double high, double low, double open, int volume) {
-        this.company_name = company_name;
-        this.date = date;
-        this.close = close;
-        this.high = high;
-        this.low = low;
-        this.open = open;
-        this.volume = volume;
-    }
+    public String date;
+    public double close;
 
     protected SymbolParcelable(Parcel in) {
-        company_name = in.readString();
         date = in.readString();
         close = in.readDouble();
-        high = in.readDouble();
-        low = in.readDouble();
-        open = in.readDouble();
-        volume = in.readInt();
+    }
+
+    public SymbolParcelable(String date, double close) {
+        this.date = date;
+        this.close = close;
     }
 
     public static final Creator<SymbolParcelable> CREATOR = new Creator<SymbolParcelable>() {
@@ -51,12 +42,7 @@ public class SymbolParcelable implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(company_name);
         dest.writeString(date);
         dest.writeDouble(close);
-        dest.writeDouble(high);
-        dest.writeDouble(low);
-        dest.writeDouble(open);
-        dest.writeInt(volume);
     }
 }
