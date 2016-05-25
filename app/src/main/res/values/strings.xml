@@ -25,4 +25,5 @@
     <string name="historicalDataStatus">historical_data_status</string>
     <string name="no_data_show">Can\'t show you data over time!</string>
     <string name="retry">RETRY</string>
+    <string name="empty_view_text">No Stocks Data Available</string>
 </resources>
