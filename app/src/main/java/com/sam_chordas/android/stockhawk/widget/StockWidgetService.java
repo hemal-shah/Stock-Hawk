@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
-
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
@@ -15,21 +14,19 @@ import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 /**
  * Created by hemal on 25/5/16.
  */
-public class StockWidgetService extends RemoteViewsService {
+
+public class StockWidgetService extends RemoteViewsService{
+
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        return null;
+        return new StockRVFactory(this.getApplicationContext(), intent);
     }
 
+    public class StockRVFactory implements RemoteViewsFactory{
 
-    class StockRVFactory implements RemoteViewsFactory{
-
-        private final String TAG = StockRVFactory.class.getSimpleName();
-
-        private int appWidgetId;
         private Context context;
         private Cursor cursor;
-
+        private int appWidgetId;
 
         public StockRVFactory(Context context, Intent intent){
             this.context = context;
@@ -37,44 +34,53 @@ public class StockWidgetService extends RemoteViewsService {
                     AppWidgetManager.INVALID_APPWIDGET_ID);
         }
 
-
         @Override
         public void onCreate() {
             cursor = getContentResolver().query(
                     QuoteProvider.Quotes.CONTENT_URI,
-                    new String[]{QuoteColumns._ID, QuoteColumns.SYMBOL, QuoteColumns.BIDPRICE,
-                            QuoteColumns.PERCENT_CHANGE, QuoteColumns.CHANGE, QuoteColumns.ISUP},
+                    new String[]{QuoteColumns._ID, //0
+                            QuoteColumns.SYMBOL, //1
+                            QuoteColumns.BIDPRICE, //2
+                            QuoteColumns.CHANGE, //3
+                            QuoteColumns.ISUP}, //4
                     QuoteColumns.ISCURRENT + " = ?",
                     new String[]{"1"},
-                    null);
+                    null
+            );
         }
 
         @Override
         public void onDataSetChanged() {
-
+            //Nothing to do on dataSetChange
         }
 
         @Override
         public void onDestroy() {
-
+            //Nothing to perform for now!
         }
 
         @Override
         public int getCount() {
-            return 0;
+            return (this.cursor != null) ? this.cursor.getCount() : 0;
         }
 
         @Override
         public RemoteViews getViewAt(int position) {
+            RemoteViews remoteViews = new RemoteViews(this.context.getPackageName(), R.layout.list_item_quote);
 
-            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.list_item_quote);
-
-            if(cursor.moveToPosition(position)){
+            if(this.cursor.moveToPosition(position)){
                 remoteViews.setTextViewText(R.id.stock_symbol, cursor.getString(1));
                 remoteViews.setTextViewText(R.id.bid_price, cursor.getString(2));
-                remoteViews.setTextViewText(R.id.change, cursor.getString(4));
-            } else{
-                Log.e(TAG, "getViewAt: error!");
+                remoteViews.setTextViewText(R.id.change, cursor.getString(3));
+
+                if(cursor.getInt(4) == 1){
+                    remoteViews.setInt(R.id.change, "setBackgroundResource",
+                            R.drawable.percent_change_pill_green);
+                } else {
+                    remoteViews.setInt(R.id.change, "setBackgroundResource",
+                            R.drawable.percent_change_pill_red);
+                }
+
             }
 
             return remoteViews;
@@ -87,17 +93,25 @@ public class StockWidgetService extends RemoteViewsService {
 
         @Override
         public int getViewTypeCount() {
-            return 0;
+            return 1;
         }
 
         @Override
         public long getItemId(int position) {
-            return 0;
+            //Return the data from the ID column of the table.
+            return this.cursor.getInt(0);
         }
 
         @Override
         public boolean hasStableIds() {
-            return false;
+            /**
+             * As the table contains a column called ID,
+             * whose value we are returning at getItemId(),
+             * and also is a primary column,
+             * every Id is unique and hence stable.
+             */
+            return true;
         }
     }
+
 }

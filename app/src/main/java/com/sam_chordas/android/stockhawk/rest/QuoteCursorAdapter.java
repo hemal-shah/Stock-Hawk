@@ -87,7 +87,7 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
 
         if(c.getCount() == 1 ){
 
-            if(Utils.isNetworkAvailable(mContext)){
+            if(!Utils.isNetworkAvailable(mContext)){
                 StockTaskService.setStockStatus(mContext, StockTaskService.STATUS_NO_NETWORK);
             } else {
                 StockTaskService.setStockStatus(mContext, StockTaskService.STATUS_OK);
