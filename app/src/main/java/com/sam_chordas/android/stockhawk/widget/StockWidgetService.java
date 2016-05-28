@@ -4,9 +4,11 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
+
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
@@ -15,20 +17,21 @@ import com.sam_chordas.android.stockhawk.data.QuoteProvider;
  * Created by hemal on 25/5/16.
  */
 
-public class StockWidgetService extends RemoteViewsService{
+public class StockWidgetService extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
         return new StockRVFactory(this.getApplicationContext(), intent);
     }
 
-    public class StockRVFactory implements RemoteViewsFactory{
+    public class StockRVFactory implements RemoteViewsFactory {
 
+        private final String TAG = StockRVFactory.class.getSimpleName();
         private Context context;
         private Cursor cursor;
         private int appWidgetId;
 
-        public StockRVFactory(Context context, Intent intent){
+        public StockRVFactory(Context context, Intent intent) {
             this.context = context;
             this.appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID);
@@ -51,12 +54,23 @@ public class StockWidgetService extends RemoteViewsService{
 
         @Override
         public void onDataSetChanged() {
-            //Nothing to do on dataSetChange
+            cursor = getContentResolver().query(
+                    QuoteProvider.Quotes.CONTENT_URI,
+                    new String[]{QuoteColumns._ID, //0
+                            QuoteColumns.SYMBOL, //1
+                            QuoteColumns.BIDPRICE, //2
+                            QuoteColumns.CHANGE, //3
+                            QuoteColumns.ISUP}, //4
+                    QuoteColumns.ISCURRENT + " = ?",
+                    new String[]{"1"},
+                    null
+            );
         }
 
         @Override
         public void onDestroy() {
-            //Nothing to perform for now!
+            if (this.cursor != null)
+                this.cursor.close();
         }
 
         @Override
@@ -68,12 +82,13 @@ public class StockWidgetService extends RemoteViewsService{
         public RemoteViews getViewAt(int position) {
             RemoteViews remoteViews = new RemoteViews(this.context.getPackageName(), R.layout.list_item_quote);
 
-            if(this.cursor.moveToPosition(position)){
-                remoteViews.setTextViewText(R.id.stock_symbol, cursor.getString(1));
+            if (this.cursor.moveToPosition(position)) {
+                String symbol = cursor.getString(1);
+                remoteViews.setTextViewText(R.id.stock_symbol, symbol);
                 remoteViews.setTextViewText(R.id.bid_price, cursor.getString(2));
                 remoteViews.setTextViewText(R.id.change, cursor.getString(3));
 
-                if(cursor.getInt(4) == 1){
+                if (cursor.getInt(4) == 1) {
                     remoteViews.setInt(R.id.change, "setBackgroundResource",
                             R.drawable.percent_change_pill_green);
                 } else {
@@ -81,7 +96,15 @@ public class StockWidgetService extends RemoteViewsService{
                             R.drawable.percent_change_pill_red);
                 }
 
+                Bundle extras = new Bundle();
+                extras.putString(StockWidgetProvider.EXTRA_SYMBOL, symbol);
+
+                Intent fillInIntent = new Intent();
+                fillInIntent.putExtras(extras);
+                remoteViews.setOnClickFillInIntent(R.id.ll_list_item_quote, fillInIntent);
+
             }
+
 
             return remoteViews;
         }

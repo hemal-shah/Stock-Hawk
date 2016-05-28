@@ -1,7 +1,10 @@
 package com.sam_chordas.android.stockhawk.ui;
 
 import android.app.LoaderManager;
+import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProvider;
 import android.content.AsyncQueryHandler;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -22,6 +25,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,6 +43,8 @@ import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
 import com.sam_chordas.android.stockhawk.touch_helper.SimpleItemTouchHelperCallback;
+import com.sam_chordas.android.stockhawk.widget.StockWidgetProvider;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -57,14 +63,19 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     private Context mContext;
     private Cursor mCursor;
     boolean isConnected;
+
     @Bind(R.id.cdl_activity_my_stocks)
     CoordinatorLayout cdl;
+
     @Bind(R.id.rv_activity_my_stocks)
     RecyclerView recyclerView;
+
     @Bind(R.id.fab_activity_my_stocks)
     FloatingActionButton fab;
+
     @Bind(R.id.toolbar_activity_my_stocks)
     Toolbar toolbar;
+
     @Bind(R.id.emptyView_acitivity_my_stocks)
     TextView emptyText;
 
@@ -265,7 +276,20 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         mCursorAdapter.swapCursor(data);
         mCursor = data;
         emptyViewBehavior();
+
+        updateStocksWidget();
+
     }
+
+
+    private void updateStocksWidget(){
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext.getApplicationContext());
+        int[] ids = appWidgetManager.getAppWidgetIds(new ComponentName(this, StockWidgetProvider.class));
+        if(ids.length > 0) {
+            appWidgetManager.notifyAppWidgetViewDataChanged(ids, R.id.lv_stock_widget_layout);
+        }
+    }
+
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -301,6 +325,16 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         } else {
             noNetworkSnack();
         }
+    }
+
+
+    @Override
+    protected void onDestroy() {
+
+        if(mCursor != null)
+            mCursor.close();
+
+        super.onDestroy();
     }
 
     /**
@@ -345,6 +379,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                     mServiceIntent.putExtra("tag", "add");
                     mServiceIntent.putExtra("symbol", this.symbol);
                     startService(mServiceIntent);
+                    updateStocksWidget();
                 }
             }
         }

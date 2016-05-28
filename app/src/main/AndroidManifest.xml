@@ -45,6 +45,7 @@
         </activity>
 
 
+        <!-- Application's widget! -->
         <receiver android:name=".widget.StockWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -58,6 +59,7 @@
         <service android:name=".widget.StockWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS"/>
 
+        <!-- Task Service for GCM -->
         <service
             android:name="com.sam_chordas.android.stockhawk.service.StockTaskService"
             android:exported="true"
@@ -68,16 +70,18 @@
         </service>
         <service android:name="com.sam_chordas.android.stockhawk.service.StockIntentService" />
 
+        <!-- Broadcast for invalid stock symbols! -->
         <receiver android:name=".service.NoStockFoundBroadcast">
             <intent-filter>
                 <action android:name="com.sam_chordas.android.stockhawk.ui.MyStocksActivity.STOCK_NOT_FOUND"></action>
             </intent-filter>
         </receiver>
 
+        <!-- Content Provider -->
         <provider
             android:name="com.sam_chordas.android.stockhawk.data.generated.QuoteProvider"
             android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
-            android:exported="false" />
+            android:exported="true" />
     </application>
 
 </manifest>
