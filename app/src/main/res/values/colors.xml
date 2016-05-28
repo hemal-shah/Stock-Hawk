@@ -14,4 +14,8 @@
     <color name="secondary_text">#727272</color>
     <color name="icons">#FFFFFF</color>
     <color name="divider">#B6B6B6</color>
+
+    <color name="my_color_highlight_focus">#ddd</color>
+    <color name="my_color_highlight_press">#fff</color>
+    <color name="color_highlight">#fff</color>
 </resources>
