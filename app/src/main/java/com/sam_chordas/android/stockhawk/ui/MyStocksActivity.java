@@ -277,15 +277,28 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         mCursor = data;
         emptyViewBehavior();
 
-        updateStocksWidget();
+        /**
+         * As onLoadFinished would be called everytime the data is updated,
+         * as well as if any stocks are dismissed, updating the widget at the same time
+         * is a good idea.
+         * Along with this, this method is called whenever a new item is added to the database.
+         */
 
+        updateStocksWidget();
     }
 
 
+    /**
+     * If any widget is added on the homescreen, this helper method helps in updating it's content from here.
+     */
     private void updateStocksWidget(){
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext.getApplicationContext());
         int[] ids = appWidgetManager.getAppWidgetIds(new ComponentName(this, StockWidgetProvider.class));
         if(ids.length > 0) {
+            /**
+             * notifyAppWidgetViewDataChanged() method will call the onDataSetChanged method of the
+             * #{@link com.sam_chordas.android.stockhawk.widget.StockWidgetService.StockRVFactory} class.
+             */
             appWidgetManager.notifyAppWidgetViewDataChanged(ids, R.id.lv_stock_widget_layout);
         }
     }

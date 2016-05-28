@@ -5,11 +5,8 @@
     <string name="symbol_search" translatable="true">Symbol Search</string>
     <string name="content_test" translatable="true">Search for a Stock Symbol</string>
     <string name="input_hint" translatable="false">FB or TCS or BSE</string>
-
     <string name="network_snack" translatable="true">Uh-oh! This app requires an internet connection</string>
     <string name="already_saved" translatable="true">This stock is already saved!</string>
-
-    <!-- Strings to identify errors and indicate those to the users! -->
     <string name="stockStatus" translatable="false">StockStatus</string>
     <string name="data_not_available" translatable="true">Stocks data not available, possible solution:\n</string>
     <string name="string_status_ok" translatable="true">You need to add new stocks by clicking add button!</string>
@@ -19,11 +16,21 @@
     <string name="string_error_server" translatable="true">Parsing error! Sorry!</string>
     <string name="string_status_unknown" translatable="true">We can\'t identify the problem, try again later?</string>
     <string name="input_prefill" />
-    <string name="no_stock_bool">showNoStockFound</string>
-    <string name="not_found">Stock symbol invalid!</string>
-    <string name="cant_fetch">Sorry! Couldn\'t fetch data!\n</string>
-    <string name="historicalDataStatus">historical_data_status</string>
-    <string name="no_data_show">Can\'t show you data over time!</string>
-    <string name="retry">RETRY</string>
-    <string name="empty_view_text">No Stocks Data Available</string>
+    <string name="no_stock_bool" translatable="false">showNoStockFound</string>
+    <string name="not_found" translatable="true">Stock symbol invalid!</string>
+    <string name="cant_fetch" translatable="true">Sorry! Couldn\'t fetch data!\n</string>
+    <string name="historicalDataStatus" translatable="false">historical_data_status</string>
+    <string name="no_data_show" translatable="true">Can\'t show you data over time!</string>
+    <string name="retry" translatable="true">RETRY</string>
+    <string name="empty_view_text" translatable="true">Stocks Data not available!</string>
+    <string name="data_error_json" translatable="true">Looks like it\'s our fault!</string>
+    <string name="data_no_internet" translatable="true">Internet Connection is required!</string>
+    <string name="data_error_parse" translatable="true">Unprecedented errors have happened!</string>
+    <string name="data_unknown_error" translatable="true">Can\'t identify the problem here!</string>
+    <string name="data_server_down" translatable="true">The Yahoo! Server is not responding properly!</string>
+    <string name="data_no_error" translatable="true">No errors!</string>
+    <string name="graph_content_description" translatable="true">Graph showing prices of the stock over time!</string>
+    <string name="list_stocks" translatable="true">List of Stocks</string>
+    <string name="fab_button_content_description" translatable="true">Button to add new stock through its symbol.</string>
+    <string name="listview_widget" translatable="true">Listview in widget.</string>
 </resources>

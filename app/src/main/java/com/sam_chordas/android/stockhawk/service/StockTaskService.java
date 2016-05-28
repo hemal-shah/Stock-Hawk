@@ -13,6 +13,8 @@ import android.database.DatabaseUtils;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
+import android.util.Log;
+
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
@@ -24,7 +26,9 @@ import com.sam_chordas.android.stockhawk.widget.StockWidgetProvider;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+
 import org.json.JSONException;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Retention;
@@ -45,6 +49,7 @@ public class StockTaskService extends GcmTaskService {
             STATUS_UNKNOWN, STATUS_SERVER_DOWN})
     public @interface StockStatuses {
     }
+
     public static final int STATUS_OK = 0;
     public static final int STATUS_ERROR_JSON = 1;
     public static final int STATUS_SERVER_ERROR = 2;
@@ -142,44 +147,44 @@ public class StockTaskService extends GcmTaskService {
         String getResponse;
         int result = GcmNetworkManager.RESULT_FAILURE;
 
-        if (urlStringBuilder != null) {
-            urlString = urlStringBuilder.toString();
+        urlString = urlStringBuilder.toString();
+        try {
+            getResponse = fetchData(urlString);
+            Log.i("Example", "onRunTask: "  + urlString);
+            result = GcmNetworkManager.RESULT_SUCCESS;
             try {
-                getResponse = fetchData(urlString);
-                result = GcmNetworkManager.RESULT_SUCCESS;
-                try {
-                    ContentValues contentValues = new ContentValues();
-                    // update ISCURRENT to 0 (false) so new data is current
-                    if (isUpdate) {
-                        contentValues.put(QuoteColumns.ISCURRENT, 0);
-                        mContext.getContentResolver().update(QuoteProvider.Quotes.CONTENT_URI, contentValues,
-                                null, null);
-                    }
-                    ArrayList<ContentProviderOperation> batchOperations = Utils.quoteJsonToContentVals(getResponse);
-
-                    if (batchOperations != null && batchOperations.size() != 0) {
-                        mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,
-                                batchOperations);
-                    } else {
-                        //The stock doesn't exist.
-
-                        Intent intent = new Intent();
-                        intent.setAction("com.sam_chordas.android.stockhawk.ui.MyStocksActivity.STOCK_NOT_FOUND");
-                        mContext.sendBroadcast(intent);
-
-                    }
-
-                } catch (RemoteException | OperationApplicationException e) {
-                    setStockStatus(mContext, STATUS_ERROR_JSON);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    setStockStatus(mContext, STATUS_ERROR_JSON);
+                ContentValues contentValues = new ContentValues();
+                // update ISCURRENT to 0 (false) so new data is current
+                if (isUpdate) {
+                    contentValues.put(QuoteColumns.ISCURRENT, 0);
+                    mContext.getContentResolver().update(QuoteProvider.Quotes.CONTENT_URI, contentValues,
+                            null, null);
                 }
-            } catch (IOException e) {
+                ArrayList<ContentProviderOperation> batchOperations = Utils.quoteJsonToContentVals(getResponse);
+
+                if (batchOperations != null && batchOperations.size() != 0) {
+                    mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,
+                            batchOperations);
+                } else {
+                    //The stock doesn't exist.
+
+                    Intent intent = new Intent();
+                    intent.setAction("com.sam_chordas.android.stockhawk.ui.MyStocksActivity.STOCK_NOT_FOUND");
+                    mContext.sendBroadcast(intent);
+
+                }
+
+            } catch (RemoteException | OperationApplicationException e) {
+                setStockStatus(mContext, STATUS_ERROR_JSON);
+            } catch (JSONException e) {
                 e.printStackTrace();
-                setStockStatus(mContext, STATUS_SERVER_DOWN);
+                setStockStatus(mContext, STATUS_ERROR_JSON);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+            setStockStatus(mContext, STATUS_SERVER_DOWN);
         }
+
 
         return result;
     }

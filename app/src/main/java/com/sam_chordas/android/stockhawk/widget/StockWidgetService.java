@@ -24,6 +24,9 @@ public class StockWidgetService extends RemoteViewsService {
         return new StockRVFactory(this.getApplicationContext(), intent);
     }
 
+    /**
+     * Equivalent to a CursorAdapter/ArrayAdapter with ListView.
+     */
     public class StockRVFactory implements RemoteViewsFactory {
 
         private final String TAG = StockRVFactory.class.getSimpleName();
@@ -37,8 +40,13 @@ public class StockWidgetService extends RemoteViewsService {
                     AppWidgetManager.INVALID_APPWIDGET_ID);
         }
 
+        /**
+         * Method where we should initialize all our data collections.
+         * In this case, our cursor.
+         */
         @Override
         public void onCreate() {
+
             cursor = getContentResolver().query(
                     QuoteProvider.Quotes.CONTENT_URI,
                     new String[]{QuoteColumns._ID, //0
@@ -52,6 +60,11 @@ public class StockWidgetService extends RemoteViewsService {
             );
         }
 
+        /**
+         *
+         * Called when notifyDataSetChanged() is called.
+         * Hence we can update the widget with new data!
+         */
         @Override
         public void onDataSetChanged() {
             cursor = getContentResolver().query(
@@ -69,12 +82,14 @@ public class StockWidgetService extends RemoteViewsService {
 
         @Override
         public void onDestroy() {
+            //close the cursor.
             if (this.cursor != null)
                 this.cursor.close();
         }
 
         @Override
         public int getCount() {
+            //Meta-function for the AppWidgetManager
             return (this.cursor != null) ? this.cursor.getCount() : 0;
         }
 
@@ -116,6 +131,7 @@ public class StockWidgetService extends RemoteViewsService {
 
         @Override
         public int getViewTypeCount() {
+            //we have only one type of view to display so returning 1.
             return 1;
         }
 

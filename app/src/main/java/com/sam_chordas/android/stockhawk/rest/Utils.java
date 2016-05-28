@@ -18,7 +18,17 @@ public class Utils {
 
     public static boolean showPercent = true;
 
-    public static ArrayList quoteJsonToContentVals(String JSON) throws JSONException {
+    private static final String QUERY = "query";
+    private static final String COUNT = "count";
+    private static final String RESULTS = "results";
+    private static final String QUOTE = "quote";
+    private static final String CHANGE = "Change";
+    private static final String BID = "Bid";
+    private static final String SYMBOL = "symbol";
+    private static final String CHANGE_IN_PERCENT = "ChangeinPercent";
+    private static final String NULL = "null";
+
+    public static ArrayList<ContentProviderOperation> quoteJsonToContentVals(String JSON) throws JSONException {
         ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>();
         JSONObject jsonObject = null;
         JSONArray resultsArray = null;
@@ -26,18 +36,18 @@ public class Utils {
 
         jsonObject = new JSONObject(JSON);
         if (jsonObject != null && jsonObject.length() != 0) {
-            jsonObject = jsonObject.getJSONObject("query");
-            int count = Integer.parseInt(jsonObject.getString("count"));
+            jsonObject = jsonObject.getJSONObject(QUERY);
+            int count = Integer.parseInt(jsonObject.getString(COUNT));
             if (count == 1) {
-                jsonObject = jsonObject.getJSONObject("results")
-                        .getJSONObject("quote");
+                jsonObject = jsonObject.getJSONObject(RESULTS)
+                        .getJSONObject(QUOTE);
                 cpo = buildBatchOperation(jsonObject);
                 if (cpo != null) {
                     batchOperations.add(cpo);
                 }
 
             } else {
-                resultsArray = jsonObject.getJSONObject("results").getJSONArray("quote");
+                resultsArray = jsonObject.getJSONObject(RESULTS).getJSONArray(QUOTE);
 
                 if (resultsArray != null && resultsArray.length() != 0) {
                     for (int i = 0; i < resultsArray.length(); i++) {
@@ -77,15 +87,17 @@ public class Utils {
         return change;
     }
 
+
     public static ContentProviderOperation buildBatchOperation(JSONObject jsonObject) throws JSONException {
         ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
                 QuoteProvider.Quotes.CONTENT_URI);
-        if (!jsonObject.getString("Change").equals("null") && !jsonObject.getString("Bid").equals("null")) {
-            String change = jsonObject.getString("Change");
-            builder.withValue(QuoteColumns.SYMBOL, jsonObject.getString("symbol"));
-            builder.withValue(QuoteColumns.BIDPRICE, truncateBidPrice(jsonObject.getString("Bid")));
+
+        if (!jsonObject.getString(CHANGE).equals(NULL) && !jsonObject.getString(BID).equals(NULL)) {
+            String change = jsonObject.getString(CHANGE);
+            builder.withValue(QuoteColumns.SYMBOL, jsonObject.getString(SYMBOL));
+            builder.withValue(QuoteColumns.BIDPRICE, truncateBidPrice(jsonObject.getString(BID)));
             builder.withValue(QuoteColumns.PERCENT_CHANGE, truncateChange(
-                    jsonObject.getString("ChangeinPercent"), true));
+                    jsonObject.getString(CHANGE_IN_PERCENT), true));
             builder.withValue(QuoteColumns.CHANGE, truncateChange(change, false));
             builder.withValue(QuoteColumns.ISCURRENT, 1);
             if (change.charAt(0) == '-') {
@@ -97,7 +109,6 @@ public class Utils {
         } else {
             return null;
         }
-
         return builder.build();
     }
 
@@ -111,16 +122,13 @@ public class Utils {
 
 
     public static String convertDate(String inputDate){
-
-        if(inputDate.length() != 8){
-            return "Error in converting";
-        }
-
-        String outputDate = "";
-        outputDate += inputDate.substring(6);
-        outputDate += "/" + inputDate.substring(4,6);
-        outputDate += "/" + inputDate.substring(2,4);
-        return outputDate;
+        StringBuilder outputFormattedDate = new StringBuilder();
+        outputFormattedDate.append(inputDate.substring(6))
+                .append("/")
+                .append(inputDate.substring(4,6))
+                .append("/")
+                .append(inputDate.substring(2, 4));
+        return outputFormattedDate.toString();
     }
 
 }

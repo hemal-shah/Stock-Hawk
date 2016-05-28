@@ -28,6 +28,7 @@
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/lineChart_activity_line_graph"
                 android:layout_width="match_parent"
+                android:contentDescription="@string/graph_content_description"
                 android:layout_height="match_parent">
 
             </com.github.mikephil.charting.charts.LineChart>

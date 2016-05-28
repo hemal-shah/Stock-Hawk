@@ -127,34 +127,27 @@ public class StockDetails extends AppCompatActivity implements HistoricalData.Hi
                 .getInt(getString(R.string.historicalDataStatus), -1);
 
         switch (status) {
-            case -1:
-                //In most cases this would not be called!
-                errorMessage += "No errors!";
-                break;
             case HistoricalData.STATUS_ERROR_JSON:
-                errorMessage += "Looks like it's our fault!";
+                errorMessage += getString(R.string.data_error_json);
                 break;
             case HistoricalData.STATUS_ERROR_NO_NETWORK:
-                errorMessage += "Internet Connection is required!";
+                errorMessage += getString(R.string.data_no_internet);
                 break;
             case HistoricalData.STATUS_ERROR_PARSE:
-                errorMessage += "Unprecedented errors have happened!";
+                errorMessage += getString(R.string.data_error_parse);
                 break;
             case HistoricalData.STATUS_ERROR_UNKNOWN:
-                errorMessage += "Can't identify the problem here!";
+                errorMessage += getString(R.string.data_unknown_error);
                 break;
             case HistoricalData.STATUS_ERROR_SERVER:
-                errorMessage += "The Yahoo! Server is not responding properly!";
+                errorMessage += getString(R.string.data_server_down);
                 break;
             case HistoricalData.STATUS_OK:
-                errorMessage += "No error has occurred!";
+                errorMessage += getString(R.string.data_no_error);
                 break;
             default:
                 break;
         }
-
-//        Snackbar.make(linearLayout, R.string.no_data_show + errorMessage, Snackbar.LENGTH_INDEFINITE).show();
-
 
         final Snackbar snackbar = Snackbar
                 .make(linearLayout, getString(R.string.no_data_show) + errorMessage, Snackbar.LENGTH_INDEFINITE)

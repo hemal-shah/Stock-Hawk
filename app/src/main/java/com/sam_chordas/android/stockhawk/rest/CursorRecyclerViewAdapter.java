@@ -58,6 +58,9 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(VH viewHolder, int position) {
         if (!dataIsValid) {
+            //As this are error messages that will rarely happen
+            //and generally would make less to no sense to customer/user
+            //this strings are not exported to strings.xml file.
             throw new IllegalStateException("This should only be called when Cursor is valid");
         }
         if (!mCursor.moveToPosition(position)) {
